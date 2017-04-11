@@ -51,6 +51,7 @@ UKF::UKF() {
   lambda_ = 3 - n_aug_;
   weights_ = VectorXd(2*n_aug_+1);
   P_ = MatrixXd::Identity(n_x_, n_x_);
+  CalcSigmaPointsWeight();
 }
 
 UKF::~UKF() {}
@@ -95,7 +96,6 @@ void UKF::Prediction(double delta_t) {
   vector, x_. Predict sigma points, the state, and the state covariance matrix.
   */
   PredictSigmaPoints(delta_t);
-  CalcSigmaPointsWeight();
   PredictStateMean();
   PredictStateCovariance();
 }
