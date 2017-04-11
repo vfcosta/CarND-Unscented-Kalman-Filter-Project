@@ -110,6 +110,7 @@ public:
   void UpdateRadar(MeasurementPackage meas_package);
 
 private:
+  Tools tools;
 
   void PredictStateCovariance();
   void PredictStateMean();

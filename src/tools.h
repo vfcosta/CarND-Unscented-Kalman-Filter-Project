@@ -20,6 +20,10 @@ public:
   */
   Eigen::VectorXd CalculateRMSE(const std::vector<Eigen::VectorXd> &estimations, const std::vector<Eigen::VectorXd> &ground_truth);
 
+  /**
+  * A helper method to convert from polar to cartesian.
+  */
+  Eigen::VectorXd ConvertPolarToCartesian(const Eigen::VectorXd& measurements);
 };
 
 #endif /* TOOLS_H_ */

@@ -25,10 +25,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 3;
+  std_a_ = 2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = M_PI/8;
+  std_yawdd_ = M_PI/2;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -45,14 +45,7 @@ UKF::UKF() {
   // Radar measurement noise standard deviation radius change in m/s
   std_radrd_ = 0.3;
 
-  /**
-  TODO:
-
-  Complete the initialization. See ukf.h for other member properties.
-
-  Hint: one or more values initialized above might be wildly off...
-  */
-
+  // Complete the initialization. See ukf.h for other member properties.
   n_x_ = 5;
   n_aug_ = 7;
   lambda_ = 3 - n_aug_;
@@ -67,14 +60,10 @@ UKF::~UKF() {}
  * either radar or laser.
  */
 void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
-  /**
-  TODO:
-
-  Complete this function! Make sure you switch between lidar and radar
-  measurements.
-  */
   if (!is_initialized_) {
-    //x_ = VectorXd(4);
+    if (meas_package.sensor_type_==MeasurementPackage::RADAR) {
+      x_ = tools.ConvertPolarToCartesian(meas_package.raw_measurements_);
+    }
 
     time_us_ = meas_package.timestamp_;
     is_initialized_ = true;
