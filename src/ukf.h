@@ -112,6 +112,7 @@ public:
 private:
   Tools tools;
 
+  void Update(int n_z, MatrixXd Zsig, MatrixXd R, MeasurementPackage meas_package);
   void PredictStateCovariance();
   void PredictStateMean();
   void CalcSigmaPointsWeight();
