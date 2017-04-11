@@ -77,6 +77,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
   float delta_t = (meas_package.timestamp_ - time_us_) / 1000000.0;	//dt - expressed in seconds
   time_us_ = meas_package.timestamp_;
+
   Prediction(delta_t);
   if (meas_package.sensor_type_==MeasurementPackage::RADAR) {
     UpdateRadar(meas_package);
@@ -91,15 +92,11 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
  * measurement and this one.
  */
 void UKF::Prediction(double delta_t) {
-  /**
-  TODO:
-
-  Complete this function! Estimate the object's location. Modify the state
-  vector, x_. Predict sigma points, the state, and the state covariance matrix.
-  */
   PredictSigmaPoints(delta_t);
-  PredictStateMean();
-  PredictStateCovariance();
+  if (delta_t > epsilon) { // skip state mean and covariance prediction for smaller delta times
+    PredictStateMean();
+    PredictStateCovariance();
+  }
 }
 
 /**
@@ -247,7 +244,7 @@ void UKF::PredictSigmaPoints(double delta_t) {
     double px_p, py_p;
 
     //avoid division by zero
-    if (fabs(yawd) > 0.001) {
+    if (fabs(yawd) > epsilon) {
         px_p = p_x + v/yawd * ( sin (yaw + yawd*delta_t) - sin(yaw));
         py_p = p_y + v/yawd * ( cos(yaw) - cos(yaw+yawd*delta_t) );
     }
