@@ -53,7 +53,8 @@ VectorXd Tools::ConvertPolarToCartesian(const Eigen::VectorXd& measurements) {
 }
 
 double Tools::NormalizeAngle(double phi) {
-  while (phi > M_PI) phi-=2.*M_PI;
-  while (phi<-M_PI) phi+=2.*M_PI;
-  return phi;
+  phi = fmod(phi + M_PI, 2*M_PI);
+  if (phi < 0)
+    phi += 2*M_PI;
+  return phi - M_PI;
 }

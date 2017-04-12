@@ -25,10 +25,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 2;
+  std_a_ = 0.5;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = M_PI/2;
+  std_yawdd_ = 0.6;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -50,7 +50,7 @@ UKF::UKF() {
   n_aug_ = 7;
   lambda_ = 3 - n_aug_;
   weights_ = VectorXd(2*n_aug_+1);
-  P_ = MatrixXd::Identity(n_x_, n_x_);
+  P_ = MatrixXd::Identity(n_x_, n_x_) * 0.1;
   CalcSigmaPointsWeight();
 }
 
@@ -63,9 +63,10 @@ UKF::~UKF() {}
 void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   if (!is_initialized_) {
     if (meas_package.sensor_type_==MeasurementPackage::RADAR) {
-      x_ = tools.ConvertPolarToCartesian(meas_package.raw_measurements_);
+      VectorXd cartesian = tools.ConvertPolarToCartesian(meas_package.raw_measurements_);
+      x_ << cartesian[0], cartesian[1], epsilon, epsilon, epsilon;
     } else if (meas_package.sensor_type_==MeasurementPackage::LASER) {
-      x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], 0, 0, 0;
+      x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], epsilon, epsilon, epsilon;
     }
     // prevent nonsense data for x, y
     if (x_[0] == 0 && x_[1] == 0) {
