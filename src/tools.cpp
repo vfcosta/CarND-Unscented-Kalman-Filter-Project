@@ -51,3 +51,9 @@ VectorXd Tools::ConvertPolarToCartesian(const Eigen::VectorXd& measurements) {
   cartesian << p * cos_phi, p * sin_phi, 0, 0, 0;
   return cartesian;
 }
+
+double Tools::NormalizeAngle(double phi) {
+  while (phi > M_PI) phi-=2.*M_PI;
+  while (phi<-M_PI) phi+=2.*M_PI;
+  return phi;
+}

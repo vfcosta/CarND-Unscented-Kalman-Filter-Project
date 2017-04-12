@@ -24,6 +24,11 @@ public:
   * A helper method to convert from polar to cartesian.
   */
   Eigen::VectorXd ConvertPolarToCartesian(const Eigen::VectorXd& measurements);
+
+  /**
+  * Normalize angles
+  */
+  double NormalizeAngle(double phi);
 };
 
 #endif /* TOOLS_H_ */

@@ -67,6 +67,10 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     } else if (meas_package.sensor_type_==MeasurementPackage::LASER) {
       x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], 0, 0, 0;
     }
+    // prevent nonsense data for x, y
+    if (x_[0] == 0 && x_[1] == 0) {
+      x_[0] = x_[1] = epsilon;
+    }
 
     time_us_ = meas_package.timestamp_;
     is_initialized_ = true;
@@ -167,16 +171,14 @@ void UKF::Update(int n_z, MatrixXd Zsig, MatrixXd R, MeasurementPackage meas_pac
     VectorXd z_diff = Zsig.col(i) - z_pred;
 
     //angle normalization
-    while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
-    while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
+    z_diff(1) = tools.NormalizeAngle(z_diff(1));
 
     S = S + weights_(i) * z_diff * z_diff.transpose();
 
     // state difference
     VectorXd x_diff = Xsig_pred_.col(i) - x_;
     //angle normalization
-    while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
-    while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
+    x_diff(3) = tools.NormalizeAngle(x_diff(3));
 
     Tc = Tc + weights_(i) * x_diff * z_diff.transpose();
   }
@@ -190,8 +192,7 @@ void UKF::Update(int n_z, MatrixXd Zsig, MatrixXd R, MeasurementPackage meas_pac
   VectorXd z_diff = meas_package.raw_measurements_ - z_pred;
 
   //angle normalization
-  while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
-  while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
+  z_diff(1) = tools.NormalizeAngle(z_diff(1));
 
   //update state mean and covariance matrix
   x_ += K * z_diff;
@@ -204,9 +205,7 @@ void UKF::PredictStateCovariance() {
     // state difference
     VectorXd x_diff = Xsig_pred_.col(i) - x_;
     //angle normalization
-    while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
-    while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
-
+    x_diff(3) = tools.NormalizeAngle(x_diff(3));
     P_ += weights_(i) * x_diff * x_diff.transpose() ;
   }
 }
