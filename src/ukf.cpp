@@ -117,8 +117,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
           0, std_laspy_*std_laspy_;
 
   // call common update method
-  Update(n_z, Zsig, R, meas_package);
-  //TODO: calculate the laser NIS.
+  NIS_laser_ = Update(n_z, Zsig, R, meas_package);
 }
 
 /**
@@ -152,11 +151,10 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
           0, 0,std_radrd_*std_radrd_;
 
   // call common update method
-  Update(n_z, Zsig, R, meas_package);
-  //TODO: calculate the radar NIS.
+  NIS_radar_ = Update(n_z, Zsig, R, meas_package);
 }
 
-void UKF::Update(int n_z, MatrixXd Zsig, MatrixXd R, MeasurementPackage meas_package) {
+double UKF::Update(int n_z, MatrixXd Zsig, MatrixXd R, MeasurementPackage meas_package) {
   /**
   Use package data to update the belief about the object's
   position. Modify the state vector, x_, and covariance, P_.
@@ -186,8 +184,9 @@ void UKF::Update(int n_z, MatrixXd Zsig, MatrixXd R, MeasurementPackage meas_pac
   //add measurement noise covariance matrix
   S = S + R;
 
+  MatrixXd Sinv = S.inverse();
   //Kalman gain K;
-  MatrixXd K = Tc * S.inverse();
+  MatrixXd K = Tc * Sinv;
 
   //residual
   VectorXd z_diff = meas_package.raw_measurements_ - z_pred;
@@ -198,6 +197,9 @@ void UKF::Update(int n_z, MatrixXd Zsig, MatrixXd R, MeasurementPackage meas_pac
   //update state mean and covariance matrix
   x_ += K * z_diff;
   P_ -= K*S*K.transpose();
+
+  // calculate the NIS.
+  return z_diff.transpose() * Sinv * z_diff;
 }
 
 void UKF::PredictStateCovariance() {
